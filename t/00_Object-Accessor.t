@@ -27,7 +27,7 @@ $Object::Accessor::DEBUG = $Object::Accessor::DEBUG = 1 if @ARGV;
 {   my $warning;
     local $SIG{__WARN__} = sub { $warning .= "@_" };
    
-    ok(!$Object->can($Acc),     "Can not '$Acc'" );
+    ok(!$Object->can($Acc),     "Cannot '$Acc'" );
     ok(!$Object->$Acc(),        "   Method '$Acc' returns false" );
     like( $warning, $Err_re,    "   Warning logged" );
 
@@ -37,7 +37,7 @@ $Object::Accessor::DEBUG = $Object::Accessor::DEBUG = 1 if @ARGV;
         
         my $rv = eval { $Object->$Acc() };
         
-        ok( $@,                 "Can not '$Acc' -- dies" );
+        ok( $@,                 "Cannot '$Acc' -- dies" );
         ok(!$rv,                "   Method '$Acc' returns false" );
         like( $@, $Err_re,      "   Fatal error logged" );
     }
@@ -112,7 +112,7 @@ $Object::Accessor::DEBUG = $Object::Accessor::DEBUG = 1 if @ARGV;
     my $other = $Class->new;
     
     
-    ok(!$other->can($Acc),          "Can not '$Acc' via other object" );
+    ok(!$other->can($Acc),          "Cannot '$Acc' via other object" );
     ok(!$other->$Acc(),             "   Method '$Acc' returns false" );
     like( $warning, $Err_re,        "   Warning logged" );
 }
