@@ -4,7 +4,7 @@ use strict;
 use Carp        qw[carp];
 use vars        qw[$FATAL $DEBUG $AUTOLOAD $VERSION];
 
-$VERSION    = '0.01';
+$VERSION    = '0.02';
 $FATAL      = 0;
 $DEBUG      = 0;
 
@@ -18,6 +18,12 @@ Object::Accessor
     $object = Object::Accessor->new;        # create object
 
     $bool   = $object->mk_accessors('foo'); # create accessors
+    $clone  = $object->mk_clone;            # create a clone of the original
+                                            # object without data
+    $bool   = $object->mk_flush;            # clean out all data    
+    
+    @list   = $object->ls_accessors;        # retrieves a list of all 
+                                            # accessors for this object
     
     $bar    = $object->foo('bar');          # set 'foo' to 'bar'
     $bar    = $object->foo();               # retrieve 'bar' again
@@ -103,6 +109,58 @@ sub mk_accessors {
     
         ### initalize it 
         $self->{$acc} = undef;
+    }
+    
+    return 1;
+}    
+
+=head2 @list = $self->ls_accessors;
+
+Returns a list of accessors that are supported by the current object.
+The corresponding coderefs can be retrieved by passing this list one
+by one to the C<can> method.
+
+=cut
+
+sub ls_accessors {
+    my $self = shift;
+    return sort keys %$self;
+}    
+
+=head2 $clone = $self->mk_clone;
+
+Makes a clone of the current object, which will have the exact same
+accessors as the current object, but without the data stored in them.
+
+=cut
+
+sub mk_clone {
+    my $self    = shift;
+    my $class   = ref $self;
+    my @list    = $self->ls_accessors;
+    
+    my $clone   = $class->new;
+    
+    $clone->mk_accessors( @list );
+    
+    return $clone;
+}
+
+=head2 $bool = $self->mk_flush;
+
+Flushes all the data from the current object; all accessors will be
+set back to their default state of C<undef>.
+
+Returns true on success and false on failure.
+
+=cut
+
+sub mk_flush {
+    my $self = shift;
+    my @list = $self->ls_accessors;
+    
+    for my $acc (@list) {
+        $self->$acc( undef );
     }
     
     return 1;

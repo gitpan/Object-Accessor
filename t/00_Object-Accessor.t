@@ -1,4 +1,4 @@
-BEGIN { chdir 't' if -d 't' };
+ BEGIN { chdir 't' if -d 't' };
 
 use strict;
 use lib '../lib';
@@ -69,6 +69,41 @@ $Object::Accessor::DEBUG = $Object::Accessor::DEBUG = 1 if @ARGV;
         is( $Object->$Acc(), 1,     "   '$Acc' still holds '1'" );
     }
 }    
+
+### get a list of accessors
+{   my @list = $Object->ls_accessors;
+    ok( scalar(@list),              "Accessors retrieved" );
+    
+    for my $acc ( @list ) {
+        ok( $Object->can( $acc ),   "   Accessor '$acc' is valid" );
+    }        
+
+    is_deeply( \@list, [$Acc],      "   Only expected accessors found" );
+}
+
+### clone the original
+{   my $clone = $Object->mk_clone;
+    my @list  = $clone->ls_accessors;
+    
+    ok( $clone,                     "Clone created" );
+    isa_ok( $clone,                 $Class );
+    ok( scalar(@list),              "   Clone has accessors" );
+    is_deeply( \@list, [$Object->ls_accessors],
+                                    "   Only expected accessors found" );
+
+    for my $acc ( @list ) {
+        ok( !defined( $clone->$acc() ),
+                                    "   Accessor '$acc' is empty" );
+    }
+}
+
+### flush the original values
+{   my $val = $Object->$Acc();
+    ok( $val,                       "Objects '$Acc' has a value" );
+    
+    ok( $Object->mk_flush,          "   Object flushed" );
+    ok( !$Object->$Acc(),           "   Objects '$Acc' is now empty" );
+}
 
 ### check that only our original object can do '$Acc'
 {   my $warning;
