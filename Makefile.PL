@@ -7,6 +7,7 @@ WriteMakefile (
     dist            => { COMPRESS => 'gzip -9f', SUFFIX => 'gz' },
     PREREQ_PM       => {    'Carp'          => 0,
                             'Test::More'    => 0,
+                            'Params::Check' => '0.23',
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 	ABSTRACT        => 'Per object accessors'
