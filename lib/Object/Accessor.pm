@@ -6,13 +6,19 @@ use vars            qw[$FATAL $DEBUG $AUTOLOAD $VERSION];
 use Params::Check   qw[allow];
 use Data::Dumper;
 
-$VERSION    = '0.10';
+$VERSION    = '0.11';
 $FATAL      = 0;
 $DEBUG      = 0;
 
-use constant VALUE      => 0;       # array index in the hash value
-use constant ALLOW      => 1;       # array index in the hash value
-use constant ANYTHING   => sub { 1 };
+use constant VALUE          => 0;       # array index in the hash value
+use constant ALLOW          => 1;       # array index in the hash value
+
+### bless a dummy object into a dummy class to serve as a 'placeholder'
+### allow handler. This way, we can skip over allow checks if the allow
+### handler is an object of this class. A plain ref won't work, as the
+### memory address may change between serializations =/
+use constant ANYTHING_CLASS => __PACKAGE__ . '::ANYTHING';
+use constant ANYTHING       => bless [], ANYTHING_CLASS;      
 
 =head1 NAME
 
@@ -350,13 +356,14 @@ sub AUTOLOAD {
         }
         
         ### need to check the value?
-        unless( $self->{$method}->[ALLOW] eq ANYTHING ) {
+        unless( UNIVERSAL::isa( $self->{$method}->[ALLOW], ANYTHING_CLASS ) ) {
+
             ### double assignment due to 'used only once' warnings
             local $Params::Check::VERBOSE = 0;
             local $Params::Check::VERBOSE = 0;
             
             allow( $val, $self->{$method}->[ALLOW] ) or (
-                _error( "'$_[1]' is an invalid value for '$method'"), 
+                _error( "'$val' is an invalid value for '$method'"), 
                 return 
             ); 
         }
@@ -431,6 +438,15 @@ This defaults to C<false>.
 
 Currently all accessors are read/write for everyone. Perhaps a future
 release should make it possible to have read-only accessors as well.
+
+=head1 CAVEATS
+
+If you use codereferences for your allow handlers, you will not be able
+to freeze the data structures using C<Storable>.
+
+Due to a bug in storable (until at least version 2.15), C<qr//> compiled 
+regexes also don't de-serialize properly. Although this bug has been 
+reported, you should be aware of this issue when serializing your objects.
 
 =head1 AUTHOR
 
