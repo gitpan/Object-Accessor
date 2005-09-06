@@ -32,3 +32,20 @@ my $Object  = $MyClass->new;
     ok( $Object->$Acc(),        "   Objects '$Acc' retrieved" );
 }    
     
+### check if we do the right thing when we call an accessor that's
+### not a defined function in the base class, and not an accessors 
+### in the object either
+{   my $sub = eval { $MyClass->can( $$ ); };
+
+    ok( !$sub,                  "No sub from non-existing function" );
+    ok( !$@,                    "   Code handled it gracefully" );
+}    
+
+### check if a method called on a class, that's not actually there
+### doesn't get confused as an object call;
+{   eval { $MyClass->$$ };
+
+    ok( $@,                     "Calling '$$' on '$MyClass' dies" );
+    like( $@, qr/from somewhere else/,
+                                "   Dies with an informative message" );
+}                                

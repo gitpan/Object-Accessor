@@ -1,12 +1,12 @@
 package Object::Accessor;
 
 use strict;
-use Carp            qw[carp];
+use Carp            qw[carp croak];
 use vars            qw[$FATAL $DEBUG $AUTOLOAD $VERSION];
 use Params::Check   qw[allow];
 use Data::Dumper;
 
-$VERSION    = '0.11';
+$VERSION    = '0.12';
 $FATAL      = 0;
 $DEBUG      = 0;
 
@@ -28,6 +28,9 @@ Object::Accessor
 
     ### using the object
     $object = Object::Accessor->new;        # create object
+    $object = Object::Accessor->new(@list); # create object with accessors
+    $object = Object::Accessor->new(\%h);   # create object with accessors
+                                            # and their allow handlers
 
     $bool   = $object->mk_accessors('foo'); # create accessors
     $bool   = $object->mk_accessors(        # create accessors with input
@@ -95,15 +98,22 @@ See the C<SYNOPSIS> for examples.
 
 =head1 METHODS
 
-=head2 $object = Object::Accessor->new();
+=head2 $object = Object::Accessor->new( [ARGS] );
 
 Creates a new (and empty) C<Object::Accessor> object. This method is
 inheritable.
 
+Any arguments given to C<new> are passed straight to C<mk_accessors>.
+
 =cut
 
 sub new {
-    return bless {}, $_[0];
+    my $class   = shift;
+    my $obj     = bless {}, $class;
+    
+    $obj->mk_accessors( @_ ) if @_;
+    
+    return $obj;
 }
 
 =head2 $bool = $object->mk_accessors( @ACCESSORS | \%ACCESSOR_MAP );
@@ -307,7 +317,7 @@ sub can {
     }
 
     ### it's an accessor we provide;
-    if( exists $self->{$method} ) {
+    if( UNIVERSAL::isa( $self, 'HASH' ) and exists $self->{$method} ) {
         _debug( "Can '$method' -- provided by object" );
         return sub { $self->$method(@_); }
     }
@@ -326,11 +336,20 @@ sub AUTOLOAD {
     my $self    = shift;
     my($method) = ($AUTOLOAD =~ /([^:']+$)/);
 
-    unless( exists $self->{$method} ) {
-        _error("No such accessor '$method'");
-        return;
-    }
-
+    ### a method on our object
+    if( UNIVERSAL::isa( $self, 'HASH' ) ) {
+        if ( not exists $self->{$method} ) {
+            _error("No such accessor '$method'");
+            return;
+        } 
+   
+    ### a method on something else, die with a descriptive error;
+    } else {     
+        local $FATAL = 1;
+        _error( "You called '$AUTOLOAD' on '$self' which was interpreted by ".
+                __PACKAGE__ . " as an object call. Did you mean to include ".
+                "'$method' from somewhere else?" );
+    }        
 
     ### assign?
     if( @_ ) {
@@ -356,7 +375,7 @@ sub AUTOLOAD {
         }
         
         ### need to check the value?
-        unless( UNIVERSAL::isa( $self->{$method}->[ALLOW], ANYTHING_CLASS ) ) {
+        unless(UNIVERSAL::isa( $self->{$method}->[ALLOW], ANYTHING_CLASS )) {
 
             ### double assignment due to 'used only once' warnings
             local $Params::Check::VERBOSE = 0;

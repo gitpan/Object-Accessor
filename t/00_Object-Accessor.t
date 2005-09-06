@@ -117,4 +117,11 @@ $Object::Accessor::DEBUG = $Object::Accessor::DEBUG = 1 if @ARGV;
     like( $warning, $Err_re,        "   Warning logged" );
 }
 
+### check if new() passes it's args correctly
+{   my $obj = $Class->new( $Acc );
+    ok( $obj,                       "Object created with accessors" );
+    isa_ok( $obj,                   $Class );
+    can_ok( $obj,                   $Acc );
+}
+
 1;
