@@ -6,4 +6,5 @@ t/00_Object-Accessor.t
 t/01_Object-Accessor-Subclassed.t
 t/02_Object-Accessor-allow.t
 t/03_Object-Accessor-local.t
+t/04_Object-Accessor-lvalue.t
 META.yml                                 Module meta-data (added by MakeMaker)
