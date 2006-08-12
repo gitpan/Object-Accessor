@@ -2,8 +2,17 @@ BEGIN { chdir 't' if -d 't' };
 
 use strict;
 use lib '../lib';
-use Test::More 'no_plan';
 use Data::Dumper;
+
+BEGIN {
+    require Test::More;
+    Test::More->import( 
+        # silly bbedit [
+        $] >= 5.008         
+            ? 'no_plan' 
+            : ( skip_all => "Lvalue objects require perl >= 5.8" )
+    );
+}
 
 my $Class   = 'Object::Accessor';
 my $LClass  =  $Class . '::Lvalue';
