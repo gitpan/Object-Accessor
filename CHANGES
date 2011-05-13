@@ -1,3 +1,7 @@
+Changes for 0.42    Fri May 13 12:21:50 BST  2011
+=================================================
+* Missed a test using exists, Ikegami RT #68154
+
 Changes for 0.40    Thu May 12 20:41:36 BST  2011
 =================================================
 * Apply patch from Ikegami RT #68154, which
@@ -26,11 +30,11 @@ Changes for 0.30    Tue Sep 19 15:31:32 CEST 2006
 =================================================
 *   Add callback possibilities to Object::Accessor.
     Also note these do not work for lvalue objects
-    due to the nature of 'lvalue' in perl. See 
+    due to the nature of 'lvalue' in perl. See
     perldoc perlsub for details, or the CAVEATS
     section in the documentation.
 
 Changes for 0.21    Sat Aug 12 21:42:05 CEST 2006
 =================================================
-*   Correct implementation of lvalue object 
+*   Correct implementation of lvalue object
     accessors.

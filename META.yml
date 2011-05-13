@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Object-Accessor
-version:            0.40
+version:            0.42
 abstract:           Per object accessors
 author:
     - Jos Boumans <kane[at]cpan.org>
