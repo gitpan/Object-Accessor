@@ -10,4 +10,5 @@ t/03_Object-Accessor-local.t
 t/04_Object-Accessor-lvalue.t
 t/05_Object-Accessor-callback.t
 t/06_Object-Accessor-alias.t
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
